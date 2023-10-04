@@ -1,3 +1,10 @@
+# Ignore data but not code
+data/**/*.txt
+data/**/*.npz
+data/**/*.csv
+data/**/*.zip
+data/**/*.mat
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
