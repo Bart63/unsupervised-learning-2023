@@ -5,7 +5,7 @@ import cv2
 def preview(extract, label):
     print(f'Previewing {label} dataset...')
 
-    images_dict, mapping = extract()
+    images_dict, mapping = extract(seed=0)
 
     print('Mapping:')
     print(mapping)

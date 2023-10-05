@@ -19,17 +19,19 @@ def loadnpzfile(file):
 def loadcsvfile(file):
     return pd.read_csv(file)
 
-def extract(nb_images=3, nb_remove=1) -> Tuple[Dict[int, np.ndarray], np.ndarray]:
+def extract(nb_images=3, nb_remove=1, seed=0) -> Tuple[Dict[int, np.ndarray], np.ndarray]:
     """
     Extracts a specified number of images and labels from the FILES directory.
     Args:
         nb_images (int): The number of images to extract for each label. Defaults to 5.
         nb_remove (int): The number of labels to remove from the extracted labels. Defaults to 1.
+        seed (int): The seed value for the random number generator. Default is 0.
     Returns:
         Tuple[Dict[int, np.ndarray], np.ndarray]: A tuple containing the chosen images and the mapping of labels.
             - chosen_images (Dict[int, np.ndarray]): A dictionary where the keys are labels and the values are arrays of chosen images.
             - mapping (np.ndarray): An array containing the mapping of labels to unicode values and characters.
     """
+    np.random.seed(seed)
     print('Extracting labels')
     labels = np.array([], dtype=int)
     for file in [FILES[1]]:

@@ -11,16 +11,18 @@ def loadmatfile(file='emnist-bymerge.mat'):
     data_file = os.path.join(BASE_DIR, file)
     return loadmat(data_file)
 
-def extract(nb_images=3) -> Tuple[Dict[int, np.ndarray], np.ndarray]:
+def extract(nb_images=3, seed=0) -> Tuple[Dict[int, np.ndarray], np.ndarray]:
     """
     Extracts a specified number of images and their labels from a dataset.
     Parameters:
         nb_images (int): The number of images to extract for each label. Default is 3.
+        seed (int): The seed value for the random number generator. Default is 0.
     Returns:
         Tuple[Dict[int, np.ndarray], np.ndarray]: A tuple containing two elements:
             - chosen_images (Dict[int, np.ndarray]): A dictionary where the keys are the labels and the values are arrays of extracted images.
             - mapping (np.ndarray): An array of labels corresponding to ascii characters.
     """
+    np.random.seed(seed)
     dataset = loadmatfile()['dataset']
     training, testing, mapping = dataset[0][0]
     characters = np.vectorize(chr)(mapping[:, -1])
