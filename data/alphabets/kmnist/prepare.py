@@ -3,15 +3,14 @@
 import requests
 import os
 
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 try:
     from tqdm import tqdm
 except ImportError:
     tqdm = lambda x, total, unit: x  # If tqdm doesn't exist, replace it with a function that does nothing
     print('**** Could not import tqdm. Please install tqdm for download progressbars! (pip install tqdm) ****')
 
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Kuzushiji-49 (49 classes, 28x28, 270k examples)
 # NumPy data format (.npz)
@@ -40,4 +39,5 @@ def download_list(url_list, force=False):
                     f.write(chunk)
     print('All dataset files downloaded!')
 
-download_list(to_download)
+def prepare(force=False):
+    download_list(to_download, force)
