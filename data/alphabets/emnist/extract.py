@@ -23,6 +23,9 @@ def extract(nb_images=3) -> Tuple[Dict[int, np.ndarray], np.ndarray]:
     """
     dataset = loadmatfile()['dataset']
     training, testing, mapping = dataset[0][0]
+    characters = np.vectorize(chr)(mapping[:, -1])
+    mapping = np.hstack((mapping, characters.reshape(-1, 1)), dtype=object)
+
     training, testing = training[0], testing[0]
     
     print('Extracting labels')
@@ -44,5 +47,6 @@ def extract(nb_images=3) -> Tuple[Dict[int, np.ndarray], np.ndarray]:
     print(images.shape)
     chosen_images = {}
     for label, positions in chosen_positions.items():
-        chosen_images[label] = images[positions].reshape(-1, 28, 28)
+        chosen_images[label] = np.transpose(
+            images[positions].reshape(-1, 28, 28), (0, 2, 1))
     return chosen_images, mapping

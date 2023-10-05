@@ -32,7 +32,7 @@ def extract(nb_images=3, nb_remove=1) -> Tuple[Dict[int, np.ndarray], np.ndarray
     """
     print('Extracting labels')
     labels = np.array([], dtype=int)
-    for file in FILES[1::2]:
+    for file in [FILES[1]]:
         print('Extracting {}'.format(os.path.basename(file)))
         labels = np.append(labels, loadnpzfile(file))
     
@@ -55,7 +55,7 @@ def extract(nb_images=3, nb_remove=1) -> Tuple[Dict[int, np.ndarray], np.ndarray
     
     print('Extracting images')
     images = None
-    for file in FILES[0:4:2]:
+    for file in [FILES[0]]:
         print('Extracting {}'.format(os.path.basename(file)))
         images = loadnpzfile(file) if images is None \
             else np.concatenate((images, loadnpzfile(file)))
@@ -66,3 +66,5 @@ def extract(nb_images=3, nb_remove=1) -> Tuple[Dict[int, np.ndarray], np.ndarray
     
     mapping = loadcsvfile(FILES[-1]).to_numpy()
     return chosen_images, mapping
+
+extract()

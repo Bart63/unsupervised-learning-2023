@@ -1,0 +1,6 @@
+tqdm
+numpy
+pandas
+scipy
+requests
+opencv-python==4.5.5.64
