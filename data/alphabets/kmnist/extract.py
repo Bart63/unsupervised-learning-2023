@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+
 from typing import Tuple, Dict
 
 
@@ -48,7 +49,7 @@ def extract(nb_images=3, nb_remove=1) -> Tuple[Dict[int, np.ndarray], np.ndarray
     for label in chosen_labels:
         print(f'For {label}: ', end='')
         positions = np.where(labels == label)[0]
-        positions = np.random.choice(positions, size=5, replace=False).tolist()
+        positions = np.random.choice(positions, size=nb_images, replace=False).tolist()
         print(positions)
         chosen_positions[label] = positions
     
