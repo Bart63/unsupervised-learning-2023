@@ -1,3 +1,4 @@
+import argparse
 from data import emnist_extract, kmnist_extract
 import numpy as np
 import cv2
@@ -49,8 +50,13 @@ def generate_dataset(emnist_seed=3, kmnist_seed=3, seed=0):
 
 
 def main():
-    for seed in range(20):
-        generate_dataset(kmnist_seed=seed, emnist_seed=seed)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--kmnist_seed', type=int, default=0)
+    parser.add_argument('--emnist_seed', type=int, default=0)
+    args = parser.parse_args()
+
+    os.makedirs('dataset', exist_ok=True)
+    generate_dataset(kmnist_seed=args.kmnist_seed, emnist_seed=args.emnist_seed)
 
 
 if __name__ == '__main__':
