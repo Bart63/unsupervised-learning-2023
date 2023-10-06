@@ -2,7 +2,7 @@ import requests
 import os
 
 
-URL = 'http://www.gutenberg.org/cache/epub/1112/pg1112.txt'
+URL = 'https://www.gutenberg.org/cache/epub/67098/pg67098.txt'
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FILE_PATH = os.path.join(BASE_DIR, 'winnie_the_pooh.txt')
