@@ -14,6 +14,16 @@ def generate_mapping(emnist_seed=3, kmnist_seed=3, seed=0, logger=None):
     e_images_dict, e_mapping = emnist_extract(seed=emnist_seed, logger=logger)
     k_images_dict, k_mapping = kmnist_extract(seed=kmnist_seed, logger=logger)
 
+    # Save e_mapping to csv
+    e_mapping_path = os.path.join(BASE_PATH, f'e_mapping.csv')
+    if not os.path.exists(e_mapping_path):
+        np.savetxt(e_mapping_path, e_mapping, fmt='%s')
+
+    # Save k_mapping to csv
+    k_mapping_path = os.path.join(BASE_PATH, f'k_mapping.csv')
+    if not os.path.exists(k_mapping_path):
+        np.savetxt(k_mapping_path, k_mapping, fmt='%s')
+
     np.random.seed(seed)
 
     # Choose random mapping

@@ -11,7 +11,7 @@ def loadmatfile(file='emnist-bymerge.mat'):
     data_file = os.path.join(BASE_DIR, file)
     return loadmat(data_file)
 
-def extract(nb_images=3, seed=0, logger=None) -> Tuple[Dict[int, np.ndarray], np.ndarray]:
+def extract(nb_images=3, seed=0, logger=None, only_mapping=False) -> Tuple[Dict[int, np.ndarray], np.ndarray]:
     """
     Extracts a specified number of images and their labels from a dataset.
     Parameters:
@@ -29,6 +29,7 @@ def extract(nb_images=3, seed=0, logger=None) -> Tuple[Dict[int, np.ndarray], np
     training, testing, mapping = dataset[0][0]
     characters = np.vectorize(chr)(mapping[:, -1])
     mapping = np.hstack((mapping, characters.reshape(-1, 1)), dtype=object)
+    if only_mapping: return mapping
 
     training, testing = training[0], testing[0]
     
