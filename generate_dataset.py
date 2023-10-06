@@ -57,8 +57,8 @@ def generate_dataset(start_line, nb_cols, nb_rows, img_height=32, img_width=32,
 
     # Create pages for EMNIST and KMNIST
     print('Generating pages for emnist and kmnist...')
-    emnist_page = np.zeros((nb_rows * img_height, nb_cols * img_width, 3), dtype=np.uint8)
-    kmnist_page = np.zeros((nb_rows * img_height, nb_cols * img_width, 3), dtype=np.uint8)
+    emnist_page = np.zeros((nb_rows * img_height, nb_cols * img_width), dtype=np.uint8)
+    kmnist_page = np.zeros((nb_rows * img_height, nb_cols * img_width), dtype=np.uint8)
     for row in range(nb_rows):
         for col in range(nb_cols):
             label = labels[row * nb_cols + col]
@@ -66,10 +66,10 @@ def generate_dataset(start_line, nb_cols, nb_rows, img_height=32, img_width=32,
             kmnist_path = get_img_path(label, kmnist_dir)
 
             # Load EMNIST image
-            emnist_image = cv2.imread(emnist_path)
+            emnist_image = cv2.imread(emnist_path, cv2.IMREAD_GRAYSCALE)
 
             # Load KMNIST image
-            kmnist_image = cv2.imread(kmnist_path)
+            kmnist_image = cv2.imread(kmnist_path, cv2.IMREAD_GRAYSCALE)
 
             # Resize images if not already the same size
             if emnist_image.shape[:2] != (img_height, img_width):
