@@ -68,5 +68,3 @@ def extract(nb_images=3, nb_remove=1, seed=0) -> Tuple[Dict[int, np.ndarray], np
     
     mapping = loadcsvfile(FILES[-1]).to_numpy()
     return chosen_images, mapping
-
-extract()

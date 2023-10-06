@@ -2,10 +2,10 @@ from data import emnist_extract, kmnist_extract
 import cv2
 
 
-def preview(extract, label):
+def preview(extract, label, seed=0):
     print(f'Previewing {label} dataset...')
 
-    images_dict, mapping = extract(seed=0)
+    images_dict, mapping = extract(seed=seed)
 
     print('Mapping:')
     print(mapping)
@@ -26,8 +26,8 @@ def preview(extract, label):
 
 
 def main():
-    preview(kmnist_extract, 'kmnist')
-    preview(emnist_extract, 'emnist')
+    preview(kmnist_extract, 'kmnist', seed=3)
+    preview(emnist_extract, 'emnist', seed=3)
 
 
 if __name__ == '__main__':

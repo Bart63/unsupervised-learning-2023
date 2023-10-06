@@ -32,7 +32,7 @@ def extract(nb_images=3, seed=0) -> Tuple[Dict[int, np.ndarray], np.ndarray]:
     
     print('Extracting labels')
     labels = np.concatenate((training['labels'][0], testing['labels'][0])).reshape(-1)
-    unique_labels = sorted(np.unique(labels))
+    unique_labels = sorted(np.unique(labels).tolist())
 
     print(f'Choosing {nb_images} images')
     chosen_positions = {}
