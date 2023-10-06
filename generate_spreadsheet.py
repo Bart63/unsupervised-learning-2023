@@ -30,7 +30,7 @@ def main():
 
     setup_logger('logger')
     logger = get_logger('logger')
-    os.makedirs('spreadsheets', exist_ok=True)
+    os.makedirs(BASE_PATH, exist_ok=True)
     for seed in range(args.nb_from, args.nb_from + args.num_seeds):
         preview(kmnist_extract, 'kmnist', seed=seed, logger=logger)
         preview(emnist_extract, 'emnist', seed=seed, logger=logger)

@@ -5,6 +5,7 @@ data/**/*.csv
 data/**/*.zip
 data/**/*.mat
 dataset
+mapping
 spreadsheets
 
 # Byte-compiled / optimized / DLL files

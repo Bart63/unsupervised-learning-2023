@@ -7,9 +7,9 @@ from logger import setup_logger, get_logger
 from data import emnist_extract, kmnist_extract
 
 
-BASE_PATH = 'dataset'
+BASE_PATH = 'mapping'
 
-def generate_dataset(emnist_seed=3, kmnist_seed=3, seed=0, logger=None):
+def generate_mapping(emnist_seed=3, kmnist_seed=3, seed=0, logger=None):
     # Extract all data
     e_images_dict, e_mapping = emnist_extract(seed=emnist_seed, logger=logger)
     k_images_dict, k_mapping = kmnist_extract(seed=kmnist_seed, logger=logger)
@@ -59,8 +59,8 @@ def main():
 
     setup_logger('logger')
     logger = get_logger('logger')
-    os.makedirs('dataset', exist_ok=True)
-    generate_dataset(kmnist_seed=args.kmnist_seed, emnist_seed=args.emnist_seed, logger=logger)
+    os.makedirs(BASE_PATH, exist_ok=True)
+    generate_mapping(kmnist_seed=args.kmnist_seed, emnist_seed=args.emnist_seed, logger=logger)
 
 
 if __name__ == '__main__':
