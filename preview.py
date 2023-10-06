@@ -1,11 +1,14 @@
-from data import emnist_extract, kmnist_extract
+import argparse
 import cv2
 
+from data import emnist_extract, kmnist_extract
+from logger import setup_logger, get_logger
 
-def preview(extract, label, seed=0):
+
+def preview(extract, label, seed=0, logger=None):
     print(f'Previewing {label} dataset...')
 
-    images_dict, mapping = extract(seed=seed)
+    images_dict, mapping = extract(seed=seed, logger=logger)
 
     print('Mapping:')
     print(mapping)
@@ -26,8 +29,16 @@ def preview(extract, label, seed=0):
 
 
 def main():
-    preview(kmnist_extract, 'kmnist', seed=3)
-    preview(emnist_extract, 'emnist', seed=3)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--kmnist_seed', type=int, default=0)
+    parser.add_argument('--emnist_seed', type=int, default=0)
+    args = parser.parse_args()
+    
+    setup_logger('logger')
+    logger = get_logger('logger')
+
+    preview(kmnist_extract, 'kmnist', seed=args.kmnist_seed, logger=logger)
+    preview(emnist_extract, 'emnist', seed=args.emnist_seed, logger=logger)
 
 
 if __name__ == '__main__':

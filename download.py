@@ -1,5 +1,5 @@
-from data import emnist_prepare, kmnist_prepare, winnie_prepare
 import argparse
+from data import emnist_prepare, kmnist_prepare, winnie_prepare
 
 
 def main():

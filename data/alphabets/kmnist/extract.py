@@ -19,7 +19,7 @@ def loadnpzfile(file):
 def loadcsvfile(file):
     return pd.read_csv(file)
 
-def extract(nb_images=3, nb_remove=1, seed=0) -> Tuple[Dict[int, np.ndarray], np.ndarray]:
+def extract(nb_images=3, nb_remove=1, seed=0, logger=None) -> Tuple[Dict[int, np.ndarray], np.ndarray]:
     """
     Extracts a specified number of images and labels from the FILES directory.
     Args:
@@ -31,34 +31,35 @@ def extract(nb_images=3, nb_remove=1, seed=0) -> Tuple[Dict[int, np.ndarray], np
             - chosen_images (Dict[int, np.ndarray]): A dictionary where the keys are labels and the values are arrays of chosen images.
             - mapping (np.ndarray): An array containing the mapping of labels to unicode values and characters.
     """
+    logger = print if logger is None else logger.info
     np.random.seed(seed)
-    print('Extracting labels')
+    logger('Extracting labels')
     labels = np.array([], dtype=int)
-    for file in [FILES[1]]:
-        print('Extracting {}'.format(os.path.basename(file)))
+    for file in FILES[1::2]:
+        logger('Extracting {}'.format(os.path.basename(file)))
         labels = np.append(labels, loadnpzfile(file))
     
-    print(f'Discarding {nb_remove+1} characters')
+    logger(f'Discarding {nb_remove+1} characters')
     unique_labels = sorted(np.unique(labels))
     chosen_labels = np.random.choice(unique_labels[:-1], replace=False, \
                                      size=len(unique_labels[:-1])-nb_remove
                                     ).tolist() # Remove iteration label with [:-1]
     chosen_labels = sorted(chosen_labels)
-    print(f'Discarded characters: {set(unique_labels).difference(chosen_labels)}')
+    logger(f'Discarded characters: {set(unique_labels).difference(chosen_labels)}')
 
-    print(f'Choosing {nb_images} images')
+    logger(f'Choosing {nb_images} images')
     chosen_positions = {}
     for label in chosen_labels:
-        print(f'For {label}: ', end='')
+        logger(f'For {label}: ')
         positions = np.where(labels == label)[0]
         positions = np.random.choice(positions, size=nb_images, replace=False).tolist()
-        print(positions)
+        logger(positions)
         chosen_positions[label] = positions
     
-    print('Extracting images')
+    logger('Extracting images')
     images = None
-    for file in [FILES[0]]:
-        print('Extracting {}'.format(os.path.basename(file)))
+    for file in FILES[0:4:2]:
+        logger('Extracting {}'.format(os.path.basename(file)))
         images = loadnpzfile(file) if images is None \
             else np.concatenate((images, loadnpzfile(file)))
 
