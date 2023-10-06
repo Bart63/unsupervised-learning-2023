@@ -23,5 +23,5 @@ def read_n_characters_with_regex(file_path, n, start_line, regex_pattern):
     return result
 
 
-def extract(nb_lines=50, start_line=190, regex_pattern=r'[a-zA-Z0-9]'):
-    return read_n_characters_with_regex(FILE_PATH, nb_lines, start_line, regex_pattern)
+def extract(nb_chars=50, start_line=190, regex_pattern=r'[a-zA-Z0-9]'):
+    return read_n_characters_with_regex(FILE_PATH, nb_chars, start_line, regex_pattern)
