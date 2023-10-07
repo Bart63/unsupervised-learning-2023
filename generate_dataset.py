@@ -4,6 +4,7 @@ import cv2
 import os
 import glob
 import argparse
+import transformations
 
 from data import winnie_extract
 from globals import CHAR_MAP
@@ -80,15 +81,35 @@ def generate_dataset(start_line, nb_cols, nb_rows, img_height=32, img_width=32,
 
             # TODO: Distort images as in the instruction
 
+            # Rotate the image with given probability
+            emnist_image = transformations.rotate(emnist_image)
+            kmnist_image = transformations.rotate(kmnist_image)
+
+            # Shrink/stretch the image with given probability
+            emnist_image = transformations.scale(emnist_image)
+            kmnist_image = transformations.scale(kmnist_image)
+
+            # Transform image to binary representation
+            emnist_image = transformations.one_hot(emnist_image)
+            kmnist_image = transformations.one_hot(kmnist_image)
             # Calculate the position to paste the image
             x = col * img_width
             y = row * img_height
-
             # Paste the EMNIST image onto the canvas
             emnist_page[y:y+img_height, x:x+img_width] = emnist_image
 
             # Paste the KMNIST image onto the canvas
             kmnist_page[y:y+img_height, x:x+img_width] = kmnist_image
+
+    # Apply salt and pepper noise on image
+    noise_probability = 0.01  # apply each type of noise to 1% of all pixels
+    emnist_page = transformations.salt_and_pepper_noise(emnist_page, p=noise_probability)
+    kmnist_page = transformations.salt_and_pepper_noise(kmnist_page, p=noise_probability)
+
+    # Apply paper folding noise
+    num_lines = 10
+    emnist_page = transformations.folding_lines(emnist_page, num_lines=num_lines)
+    kmnist_page = transformations.folding_lines(kmnist_page, num_lines=num_lines)
 
     # Save EMNIST page as PNG
     print('Saving...')
