@@ -1,4 +1,3 @@
-import random
 from scipy.ndimage import rotate as rt
 import cv2
 import math
@@ -6,17 +5,17 @@ import numpy as np
 
 
 def rotate(image, p=0.3, degree=15):
-    if random.random() < p:
-        degree = random.uniform(-degree, degree)
+    if np.random.random() < p:
+        degree = np.random.uniform(-degree, degree)
         image = rt(image, degree, reshape=False)
     return image
 
 
 def scale(image, p=0.3, factor=0.08):
-    random_number = random.random()
+    random_number = np.random.random()
     shape = image.shape
     if random_number < p:
-        factor = 1 + random.uniform(-factor, factor)
+        factor = 1 + np.random.uniform(-factor, factor)
         if random_number < p/2:
             new_width = int(image.shape[0] * factor)
             image = cv2.resize(image, (new_width, shape[1]), interpolation=cv2.INTER_LINEAR)
@@ -51,10 +50,10 @@ def salt_and_pepper_noise(image, p=0.01):
 
 def folding_lines(image, num_lines):
     for _ in range(num_lines):
-        line_length = random.randint(0, min(image.shape))
-        line_angle_degrees = random.randint(0, 90)
-        x1 = random.randint(0, image.shape[1] - 1)
-        y1 = random.randint(0, image.shape[0] - 1)
+        line_length = np.random.randint(0, min(image.shape))
+        line_angle_degrees = np.random.randint(0, 90)
+        x1 = np.random.randint(0, image.shape[1] - 1)
+        y1 = np.random.randint(0, image.shape[0] - 1)
         line_angle_radians = math.radians(line_angle_degrees)
         x2 = int(x1 + line_length * math.cos(line_angle_radians))
         y2 = int(y1 + line_length * math.sin(line_angle_radians))

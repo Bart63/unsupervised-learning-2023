@@ -63,14 +63,22 @@ def generate_dataset(start_line, nb_cols, nb_rows, img_height=32, img_width=32,
     for row in range(nb_rows):
         for col in range(nb_cols):
             label = labels[row * nb_cols + col]
-            emnist_path = get_img_path(label, emnist_dir)
-            kmnist_path = get_img_path(label, kmnist_dir)
 
-            # Load EMNIST image
-            emnist_image = cv2.imread(emnist_path, cv2.IMREAD_GRAYSCALE)
+            if label == ' ':
+                # Load EMNIST image
+                emnist_image = np.zeros((img_height, img_width))
 
-            # Load KMNIST image
-            kmnist_image = cv2.imread(kmnist_path, cv2.IMREAD_GRAYSCALE)
+                # Load KMNIST image
+                kmnist_image = np.zeros((img_height, img_width))
+            else:
+                emnist_path = get_img_path(label, emnist_dir)
+                kmnist_path = get_img_path(label, kmnist_dir)
+
+                # Load EMNIST image
+                emnist_image = cv2.imread(emnist_path, cv2.IMREAD_GRAYSCALE)
+
+                # Load KMNIST image
+                kmnist_image = cv2.imread(kmnist_path, cv2.IMREAD_GRAYSCALE)
 
             # Resize images if not already the same size
             if emnist_image.shape[:2] != (img_height, img_width):
@@ -78,8 +86,6 @@ def generate_dataset(start_line, nb_cols, nb_rows, img_height=32, img_width=32,
             
             if kmnist_image.shape[:2] != (img_height, img_width):
                 kmnist_image = cv2.resize(kmnist_image, (img_width, img_height))
-
-            # TODO: Distort images as in the instruction
 
             # Rotate the image with given probability
             emnist_image = transformations.rotate(emnist_image)
@@ -125,7 +131,7 @@ def generate_dataset(start_line, nb_cols, nb_rows, img_height=32, img_width=32,
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--start_line', type=int, default=0)
+    parser.add_argument('--start_line', type=int, default=202)
     parser.add_argument('--nb_cols', type=int, default=80)
     parser.add_argument('--nb_rows', type=int, default=114)
     parser.add_argument('--img_height', type=int, default=32)

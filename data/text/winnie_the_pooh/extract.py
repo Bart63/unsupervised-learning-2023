@@ -13,8 +13,11 @@ def read_n_characters_with_regex(file_path, n, start_line, regex_pattern):
 
         while current_line < len(lines):
             line = lines[current_line]
+            line = ' '.join(line.split()) + ' '
             matches = re.findall(regex_pattern, line)
             for match in matches:
+                if result and result[-1] == ' ' and match == ' ':
+                    continue
                 result += match
                 if len(result) >= n:
                     return result[:n]
@@ -23,5 +26,5 @@ def read_n_characters_with_regex(file_path, n, start_line, regex_pattern):
     return result
 
 
-def extract(nb_chars=50, start_line=190, regex_pattern=r'[a-zA-Z0-9]'):
+def extract(nb_chars=50, start_line=190, regex_pattern=r'[a-zA-Z0-9 ]'):
     return read_n_characters_with_regex(FILE_PATH, nb_chars, start_line, regex_pattern)
