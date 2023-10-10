@@ -3,6 +3,7 @@ import pandas as pd
 import cv2
 import os
 import glob
+import shutil
 import argparse
 import transformations
 
@@ -52,6 +53,11 @@ def generate_dataset(start_line, nb_cols, nb_rows, img_height=32, img_width=32,
     # Paths to directory of images
     emnist_dir = os.path.join(MAPPING_BASE, f'emnist_{e_num}')
     kmnist_dir = os.path.join(MAPPING_BASE, f'kmnist_{k_num}')
+    
+    pairs_dir = os.path.join(BASE_PATH, f'pairs_e{e_num}_k{k_num}_s{seed}')
+    if os.path.exists(pairs_dir):
+        shutil.rmtree(pairs_dir)
+    os.mkdir(pairs_dir)
 
     get_img_path = lambda l, ds_dir: np.random.choice(
         glob.glob(os.path.join(ds_dir, str(l), '*.png')))
@@ -62,7 +68,8 @@ def generate_dataset(start_line, nb_cols, nb_rows, img_height=32, img_width=32,
     kmnist_page = np.zeros((nb_rows * img_height, nb_cols * img_width), dtype=np.uint8)
     for row in range(nb_rows):
         for col in range(nb_cols):
-            label = labels[row * nb_cols + col]
+            idx = row * nb_cols + col
+            label = labels[idx]
 
             if label == ' ':
                 # Load EMNIST image
@@ -101,6 +108,7 @@ def generate_dataset(start_line, nb_cols, nb_rows, img_height=32, img_width=32,
             # Calculate the position to paste the image
             x = col * img_width
             y = row * img_height
+
             # Paste the EMNIST image onto the canvas
             emnist_page[y:y+img_height, x:x+img_width] = emnist_image
 
@@ -125,6 +133,24 @@ def generate_dataset(start_line, nb_cols, nb_rows, img_height=32, img_width=32,
     # Save KMNIST page as PNG
     kmnist_fname = os.path.join(BASE_PATH, 'kmnist_page.png')
     cv2.imwrite(kmnist_fname, kmnist_page)
+
+    # Go thru pages emnist and kmnist and save pairs 
+    for row in range(nb_rows):
+        for col in range(nb_cols):
+            idx = row * nb_cols + col
+            
+            # Get images of a characters from pages
+            row_slice = slice(row*img_height, (row+1)*img_height)
+            col_slice = slice(col*img_width, (col+1)*img_width)
+            emnist_image = emnist_page[row_slice, col_slice]
+            kmnist_image = kmnist_page[row_slice, col_slice]
+
+            # Concat emnist_image and kmnist_image to one image
+            pair_img = np.concatenate((emnist_image, kmnist_image), axis=1)
+
+            # Save pair (EMNIST, KMNIST)
+            pair_fname = os.path.join(pairs_dir, f'{idx}.png')
+            cv2.imwrite(pair_fname, pair_img)
 
     print('Done!')
 
