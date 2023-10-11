@@ -30,7 +30,7 @@ class ImageHalfDataset(VisionDataset):
         return image
 
 
-data_dir = 'dataset/pairs_e0_k0_s0'
+data_dir = 'dataset/pairs_e22_k2_s0'
 
 transform = transforms.Compose([
     transforms.ToTensor(),  # Convert to PyTorch tensor

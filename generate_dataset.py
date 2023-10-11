@@ -163,11 +163,13 @@ def main():
     parser.add_argument('--img_height', type=int, default=32)
     parser.add_argument('--img_width', type=int, default=32)
     parser.add_argument('--seed', type=int, default=0)
+    parser.add_argument('--mapping', type=str, default='mapping_e0_k0_m0.csv')
     args = parser.parse_args()
 
     os.makedirs(BASE_PATH, exist_ok=True)
     generate_dataset(args.start_line, args.nb_cols, args.nb_rows, 
-                     args.img_height, args.img_width, args.seed)
+                     args.img_height, args.img_width, args.seed,
+                     mapping_fname=args.mapping)
 
 
 if __name__ == '__main__':

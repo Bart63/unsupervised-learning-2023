@@ -9,10 +9,10 @@ from logger import setup_logger, get_logger
 
 BASE_PATH = 'spreadsheets'
 
-def preview(extract, label, seed=0, logger=None):
+def preview(extract, label, seed=0, nb_images=2, logger=None):
     print(f'Generating {label} spreadsheets...')
 
-    images_dict, mapping = extract(seed=seed, logger=logger)
+    images_dict, mapping = extract(seed=seed, logger=logger, nb_images=nb_images)
     spreadsheet = images_dict[list(images_dict)[0]].reshape(-1, 28)
 
     for key in list(images_dict.keys())[1:]:
@@ -26,14 +26,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_seeds', type=int, default=25)
     parser.add_argument('--nb_from', type=int, default=0)
+    parser.add_argument('--nb_imgs', type=int, default=2)
     args = parser.parse_args()
 
     setup_logger('logger')
     logger = get_logger('logger')
     os.makedirs(BASE_PATH, exist_ok=True)
     for seed in range(args.nb_from, args.nb_from + args.num_seeds):
-        preview(kmnist_extract, 'kmnist', seed=seed, logger=logger)
-        preview(emnist_extract, 'emnist', seed=seed, logger=logger)
+        preview(kmnist_extract, 'kmnist', seed=seed, logger=logger, nb_images=args.nb_imgs)
+        preview(emnist_extract, 'emnist', seed=seed, logger=logger, nb_images=args.nb_imgs)
 
 
 if __name__ == '__main__':
