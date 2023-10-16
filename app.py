@@ -37,7 +37,9 @@ class PageProcessor:
         size = 32
         img = self.emnist_page[:size, :size]
         tensor = torch.from_numpy(img.reshape(1, 1, size, size)).float()
-        return img, self.emnist_model.encode(tensor).detach().numpy()
+        with torch.no_grad():
+            rep = self.emnist_model.encode(tensor).numpy()
+        return img, rep
     
     def emnist_encode(self, img):
         return self.emnist_model.encode(img)
