@@ -31,18 +31,10 @@ class ConvAutoEncoder(nn.Module):
         return x
 
 
-if __name__ == '__main__':
-    # Check if gpu is available
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+def train_cae(dl, criterion, num_epochs=50, viz=False, name=''):
     model = ConvAutoEncoder().to(device)
-    criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
 
-    # dl = get_emnist()
-    dl = get_kmnist()
-
-    num_epochs = 50
     best_loss = float('inf')
     best_epoch = -1
     best_model = None
@@ -66,19 +58,35 @@ if __name__ == '__main__':
         outputs.append((epoch, img.cpu(), recon.cpu()))
 
     # Save the best model to a file
-    torch.save(best_model, f'cae_best_{best_epoch}.pth')
+    torch.save(best_model, f"{name + '_' if name else ''}cae_best_{best_epoch}.pth")
 
-    plt.figure(figsize=(18, 2))
+    if viz: vizualize(outputs)
+
+
+def vizualize(outputs, n=18):
+    plt.figure(figsize=(n, 2))
     plt.gray()
     imgs = outputs[-1][1].detach().numpy()
     recon = outputs[-1][2].detach().numpy()
     for i, item in enumerate(imgs):
-        if i >= 18: break
-        plt.subplot(2, 18, i+1)
+        if i >= n: break
+        plt.subplot(2, n, i+1)
         plt.imshow(item[0])
             
     for i, item in enumerate(recon):
-        if i >= 18: break
-        plt.subplot(2, 18, 18+i+1)
+        if i >= n: break
+        plt.subplot(2, n, n+i+1)
         plt.imshow(item[0])
     plt.show()
+
+
+if __name__ == '__main__':
+    # Check if gpu is available
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    criterion = nn.MSELoss()
+    dl = get_emnist()
+    train_cae(dl, criterion, name='emnist')
+
+    dl = get_kmnist()
+    train_cae(dl, criterion, name='kmnist')

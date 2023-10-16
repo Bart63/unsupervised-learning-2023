@@ -163,7 +163,7 @@ def main():
     parser.add_argument('--img_height', type=int, default=32)
     parser.add_argument('--img_width', type=int, default=32)
     parser.add_argument('--seed', type=int, default=0)
-    parser.add_argument('--mapping', type=str, default='mapping_e0_k0_m0.csv')
+    parser.add_argument('--mapping', type=str, default='mapping_e22_k2_m0.csv')
     args = parser.parse_args()
 
     os.makedirs(BASE_PATH, exist_ok=True)

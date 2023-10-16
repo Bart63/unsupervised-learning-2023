@@ -9,10 +9,10 @@ from data import emnist_extract, kmnist_extract
 
 BASE_PATH = 'mapping'
 
-def generate_mapping(emnist_seed=3, kmnist_seed=3, seed=0, logger=None):
+def generate_mapping(nb_imgs=2, emnist_seed=3, kmnist_seed=3, seed=0, logger=None):
     # Extract all data
-    e_images_dict, e_mapping = emnist_extract(seed=emnist_seed, logger=logger)
-    k_images_dict, k_mapping = kmnist_extract(seed=kmnist_seed, logger=logger)
+    e_images_dict, e_mapping = emnist_extract(nb_images=nb_imgs, seed=emnist_seed, logger=logger)
+    k_images_dict, k_mapping = kmnist_extract(nb_images=nb_imgs, seed=kmnist_seed, logger=logger)
 
     # Save e_mapping to csv
     e_mapping_path = os.path.join(BASE_PATH, f'e_mapping.csv')
@@ -63,14 +63,15 @@ def generate_mapping(emnist_seed=3, kmnist_seed=3, seed=0, logger=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--kmnist_seed', type=int, default=0)
-    parser.add_argument('--emnist_seed', type=int, default=0)
+    parser.add_argument('--kmnist_seed', type=int, default=2)
+    parser.add_argument('--emnist_seed', type=int, default=22)
+    parser.add_argument('--nb_imgs', type=int, default=1)
     args = parser.parse_args()
 
     setup_logger('logger')
     logger = get_logger('logger')
     os.makedirs(BASE_PATH, exist_ok=True)
-    generate_mapping(kmnist_seed=args.kmnist_seed, emnist_seed=args.emnist_seed, logger=logger)
+    generate_mapping(nb_imgs=args.nb_imgs, kmnist_seed=args.kmnist_seed, emnist_seed=args.emnist_seed, logger=logger)
 
 
 if __name__ == '__main__':
