@@ -3,20 +3,28 @@ import torch.nn as nn
 import torch.optim as optim
 import matplotlib.pyplot as plt
 
-from .img_dataset import get_emnist, get_kmnist
+from img_dataset import get_emnist, get_kmnist
 
-class ConvAutoEncoder(nn.Module):
+class ConvEncoder(nn.Module):
     def __init__(self):
         super().__init__()
-        # N, 1, 32, 32
-        self.encoder = nn.Sequential(
+        self.model = nn.Sequential(
             nn.Conv2d(1, 8, 3, stride=2, padding=1), # -> N, 8, 16, 16
             nn.ReLU(),
             nn.Conv2d(8, 16, 3, stride=2, padding=1), # -> N, 16, 8, 8
             nn.ReLU(),
             nn.Conv2d(16, 32, 8), # -> N, 32, 1, 1
         )
-        self.decoder = nn.Sequential(
+
+    def forward(self, X: torch.Tensor) -> torch.Tensor:
+        Y = self.model(X)
+        return Y
+
+
+class ConvDecoder(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.model = nn.Sequential(
             nn.ConvTranspose2d(32, 16, 8), # -> N, 16, 8, 8
             nn.ReLU(),
             nn.ConvTranspose2d(16, 8, 3, stride=2, padding=1, output_padding=1), # -> N, 8, 16, 16
@@ -24,14 +32,29 @@ class ConvAutoEncoder(nn.Module):
             nn.ConvTranspose2d(8, 1, 3, stride=2, padding=1, output_padding=1), # -> N, 1, 32, 32
             nn.Sigmoid()
         )
+
+    def forward(self, X: torch.Tensor) -> torch.Tensor:
+        Y = self.model(X)
+        return Y
+
+
+class ConvAutoEncoder(nn.Module):
+    def __init__(self):
+        super().__init__()
+        # N, 1, 32, 32
+        self.encoder = ConvEncoder()
+        self.decoder = ConvDecoder()
     
-    def forward(self, x):
+    def forward(self, x:torch.Tensor) -> torch.Tensor:
         x = self.encoder(x)
         x = self.decoder(x)
         return x
 
 
-def train_cae(dl, criterion, num_epochs=50, viz=False, name=''):
+def train_cae(dl, criterion, num_epochs=50, viz=False, name='', device='cpu'):
+    # Check if gpu is available
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     model = ConvAutoEncoder().to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
 
@@ -81,9 +104,6 @@ def vizualize(outputs, n=18):
 
 
 if __name__ == '__main__':
-    # Check if gpu is available
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     criterion = nn.MSELoss()
     dl = get_emnist()
     train_cae(dl, criterion, name='emnist')

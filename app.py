@@ -10,6 +10,8 @@ from sklearn.neighbors import kneighbors_graph
 from sklearn.manifold import SpectralEmbedding
 from sklearn.cluster import KMeans
 
+# Use SSIM as the loss function
+
 DATASET_FOLDER = 'dataset'
 MODELS_FOLDER = 'models'
 
