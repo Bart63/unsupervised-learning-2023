@@ -1,6 +1,8 @@
 import os
 import cv2
 import torch
+import glob
+from helpers import is_whitespace
 from ml import ConvAutoEncoder
 import umap
 import numpy as np
@@ -10,7 +12,6 @@ from sklearn.neighbors import kneighbors_graph
 from sklearn.manifold import SpectralEmbedding
 from sklearn.cluster import KMeans
 
-# Use SSIM as the loss function
 
 DATASET_FOLDER = 'dataset'
 MODELS_FOLDER = 'models'
@@ -22,7 +23,7 @@ class EncoderModel:
 
     def load_models(self, type='cae'):
         sd_path = os.path.join(MODELS_FOLDER, f'{self.ds}_{type}.pth')
-        device = torch.device('cpu')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         #self.model:ConvAutoEncoder = ConvAutoEncoder()
         self.model = ConvAutoEncoder().to(device)
         #self.model.load_state_dict(torch.load(sd_path))
@@ -39,33 +40,43 @@ class PageProcessor:
         self.kmnist_model = EncoderModel('kmnist')
         self.load_pages()
 
+    def _load_pages(self, type='emnist'):
+        path_wildcard = os.path.join(DATASET_FOLDER, f'{type}_page_*.png')
+        paths = glob.glob(path_wildcard)
+        pages = [cv2.imread(path, cv2.IMREAD_GRAYSCALE) for path in paths]
+        return pages
+
     def load_pages(self):
-        emnist_path = os.path.join(DATASET_FOLDER, 'emnist_page.png')
-        self.emnist_page = cv2.imread(emnist_path, cv2.IMREAD_GRAYSCALE)
-        kmnist_path = os.path.join(DATASET_FOLDER, 'kmnist_page.png')
-        self.kmnist_page = cv2.imread(kmnist_path, cv2.IMREAD_GRAYSCALE)
+        self.emnist_pages = self._load_pages('emnist')
+        self.kmnist_pages = self._load_pages('kmnist')
     
     def encode_pages(self):
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         encoded_emnist_letters = []
         encoded_kmnist_letters = []
         size = 32
         rows = 114
         columns = 80
-        for row in range(rows):
-            for column in range(columns):
-                emnist_letter = self.emnist_page[size*row:size*(row+1), size*column:size*(column+1)]
-                kmnist_letter = self.kmnist_page[size*row:size*(row+1), size*column:size*(column+1)]
+        for emnist_page, kmnist_page in zip(self.emnist_pages, self.kmnist_pages):
+            for row in range(rows):
+                for column in range(columns):
+                    emnist_letter = emnist_page[size*row:size*(row+1), size*column:size*(column+1)]
+                    kmnist_letter = kmnist_page[size*row:size*(row+1), size*column:size*(column+1)]
 
-                tensor = torch.from_numpy(emnist_letter.reshape(1, 1, size, size)).float()
-                with torch.no_grad():
-                    rep = self.emnist_model.encode(tensor).numpy()
-                    rep = rep.reshape((32))
-                    encoded_emnist_letters.append(rep)
-                tensor = torch.from_numpy(kmnist_letter.reshape(1, 1, size, size)).float()
-                with torch.no_grad():
-                    rep = self.kmnist_model.encode(tensor).numpy()
-                    rep = rep.reshape((32))
-                    encoded_kmnist_letters.append(rep)
+                    if is_whitespace(emnist_letter) or is_whitespace(kmnist_letter):
+                        continue
+
+                    tensor = torch.from_numpy(emnist_letter.reshape(1, 1, size, size)).float().to(device)
+                    with torch.no_grad():
+                        rep = self.emnist_model.encode(tensor).cpu().numpy()
+                        rep = rep.reshape((32))
+                        encoded_emnist_letters.append(rep)
+
+                    tensor = torch.from_numpy(kmnist_letter.reshape(1, 1, size, size)).float().to(device)
+                    with torch.no_grad():
+                        rep = self.kmnist_model.encode(tensor).cpu().numpy()
+                        rep = rep.reshape((32))
+                        encoded_kmnist_letters.append(rep)
         self.encoded_emnist_letters = np.array(encoded_emnist_letters)
         self.encoded_kmnist_letters = np.array(encoded_kmnist_letters)
 
@@ -77,7 +88,7 @@ class PageProcessor:
     def emnist_encode(self, img):
         return self.emnist_model.encode(img)
 
-    def clustering(self, sigma=1, num_clusters=48):
+    def clustering(self, sigma=1, num_clusters=47):
         distance_matrix = pairwise_distances(self.encoded_emnist_letters, metric='euclidean')
         affinity_matrix = np.exp(-distance_matrix / (2 * sigma ** 2))
         spectral_embedding = SpectralEmbedding(n_components=num_clusters, affinity='precomputed')
@@ -129,8 +140,8 @@ if __name__ == '__main__':
 
     # visualize clusters in 2D
     plt.figure(figsize=(8, 6))
-    colors = plt.cm.Spectral(np.linspace(0, 1, 48))
-    for cluster_label in range(48):
+    colors = plt.get_cmap('gist_ncar')(np.linspace(0, 1, 47))
+    for cluster_label in range(47):
         plt.scatter(umap_result[emnist_clusters == cluster_label, 0], umap_result[emnist_clusters == cluster_label, 1],
                     c=colors[cluster_label],
                     label=f'Cluster {cluster_label}')

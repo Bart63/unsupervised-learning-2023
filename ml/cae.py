@@ -3,7 +3,10 @@ import torch.nn as nn
 import torch.optim as optim
 import matplotlib.pyplot as plt
 
-from img_dataset import get_emnist, get_kmnist
+from .img_dataset import get_emnist, get_kmnist
+
+
+# TODO: Use SSIM as the loss function
 
 class ConvEncoder(nn.Module):
     def __init__(self):
