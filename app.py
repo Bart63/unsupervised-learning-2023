@@ -4,14 +4,9 @@ import torch
 import glob
 from helpers import is_whitespace
 from ml import ConvAutoEncoder
-import umap
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import pairwise_distances
-from sklearn.neighbors import kneighbors_graph
-from sklearn.manifold import SpectralEmbedding
-from sklearn.cluster import KMeans
-
+from unsupervised_models import clustering_model, reduction_model
 
 DATASET_FOLDER = 'dataset'
 MODELS_FOLDER = 'models'
@@ -80,31 +75,16 @@ class PageProcessor:
         self.encoded_emnist_letters = np.array(encoded_emnist_letters)
         self.encoded_kmnist_letters = np.array(encoded_kmnist_letters)
 
-    def reduce_dimensions(self, n_components=2):
-        umap_model = umap.UMAP(n_components=n_components)
-        self.encoded_emnist_letters = umap_model.fit_transform(self.encoded_emnist_letters)
-        self.encoded_kmnist_letters = umap_model.fit_transform(self.encoded_kmnist_letters)
+    def reduce_dimensions(self):
+        self.encoded_emnist_letters, self.encoded_kmnist_letters = reduction_model(self.encoded_emnist_letters,
+                                                                                  self.encoded_kmnist_letters)
 
     def emnist_encode(self, img):
         return self.emnist_model.encode(img)
 
-    def clustering(self, sigma=1, num_clusters=47):
-        distance_matrix = pairwise_distances(self.encoded_emnist_letters, metric='euclidean')
-        affinity_matrix = np.exp(-distance_matrix / (2 * sigma ** 2))
-        spectral_embedding = SpectralEmbedding(n_components=num_clusters, affinity='precomputed')
-        reduced_data = spectral_embedding.fit_transform(affinity_matrix)
-        kmeans = KMeans(n_clusters=num_clusters)
-        emnist_clusters = kmeans.fit_predict(reduced_data)
-
-        distance_matrix = pairwise_distances(self.encoded_kmnist_letters, metric='euclidean')
-        affinity_matrix = np.exp(-distance_matrix / (2 * sigma ** 2))
-        spectral_embedding = SpectralEmbedding(n_components=num_clusters, affinity='precomputed')
-        reduced_data = spectral_embedding.fit_transform(affinity_matrix)
-        kmeans = KMeans(n_clusters=num_clusters)
-        kmnist_clusters = kmeans.fit_predict(reduced_data)
-        self.emnist_clusters = emnist_clusters
-        self.kmnist_clusters = kmnist_clusters
-        return emnist_clusters, kmnist_clusters
+    def clustering(self):
+        self.emnist_clusters, self.kmnist_clusters = clustering_model(self.encoded_emnist_letters, self.encoded_kmnist_letters)
+        return self.emnist_clusters, self.kmnist_clusters
 
     def reassign_classes(self):  # reassign classes based on cardinality
         class_counts = {}
