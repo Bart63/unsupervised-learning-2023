@@ -74,6 +74,14 @@ def generate_dataset(start_line, nb_cols, nb_rows, nb_pages, img_height=32, img_
                 idx = nb_page * nb_cols * nb_rows + row * nb_cols + col
                 label = labels[idx]
 
+                if label == '\n':
+                    # Replace new line with whitespaces to the end of a row
+                    whitespaces_to_add = nb_cols - col
+                    labels.pop(idx)
+                    for _ in range(whitespaces_to_add):
+                        labels.insert(idx, ' ')
+                    label = labels[idx]
+                
                 if label == ' ':
                     # Load EMNIST image
                     emnist_image = np.zeros((img_height, img_width))
