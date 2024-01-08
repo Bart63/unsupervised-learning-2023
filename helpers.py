@@ -9,6 +9,11 @@ def opening(img, kernel_size=(2,2)):
 
 
 def is_whitespace(img, thr=22, kernel_size=(2,2)):
+    img = img.copy()
+    if img.dtype != np.uint8:
+        img = img.astype(np.uint8)
+    if 255 not in img:
+        img *= 255
     opened_img = opening(img, kernel_size)
     op_val = np.sum(opened_img)//255
     return op_val < thr

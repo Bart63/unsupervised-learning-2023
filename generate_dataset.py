@@ -25,8 +25,11 @@ def map_text(text, mapping):
     return mapped_text
 
 
-def generate_dataset(start_line, nb_cols, nb_rows, nb_pages, img_height=32, img_width=32, 
-                     seed=0, mapping_fname='mapping_e0_k0_m0.csv'):
+def generate_dataset(start_line, nb_pages, nb_cols=80, nb_rows=114, img_height=32, img_width=32, 
+                     seed=0, mapping_fname='mapping_e22_k2_m0.csv', save_pairs=True,
+                     add_roatation=True, add_scaling=True, add_salt_and_pepper=True, add_folding_lines=True,
+                     num_folding_lines=10, salt_pepper_prob=0.01, rotation_prob=0.3, scaling_prob=0.3,
+                     rotation_degree=15, scaling_factor=0.08):
     np.random.seed(seed)
 
     # read e_mapping csv
@@ -49,16 +52,22 @@ def generate_dataset(start_line, nb_cols, nb_rows, nb_pages, img_height=32, img_
 
     # Generate list of labels
     char2label = dict(zip(e_mapping_df['char'], e_mapping_df['label']))
+    label2char = dict(zip(e_mapping_df['label'], e_mapping_df['char']))
     labels = map_text(text, char2label)
 
     # Paths to directory of images
     emnist_dir = os.path.join(MAPPING_BASE, f'emnist_{e_num}')
     kmnist_dir = os.path.join(MAPPING_BASE, f'kmnist_{k_num}')
+
+    pages_to_delet = glob.glob(os.path.join(BASE_PATH, '*mnist_page_*.png'))
+    for page_to_delet in pages_to_delet:
+        os.remove(page_to_delet)
     
-    pairs_dir = os.path.join(BASE_PATH, f'pairs_e{e_num}_k{k_num}_s{seed}')
-    if os.path.exists(pairs_dir):
-        shutil.rmtree(pairs_dir)
-    os.mkdir(pairs_dir)
+    if save_pairs:
+        pairs_dir = os.path.join(BASE_PATH, f'pairs_e{e_num}_k{k_num}_s{seed}')
+        if os.path.exists(pairs_dir):
+            shutil.rmtree(pairs_dir)
+        os.mkdir(pairs_dir)
 
     get_img_path = lambda l, ds_dir: np.random.choice(
         glob.glob(os.path.join(ds_dir, str(l), '*.png')))
@@ -66,12 +75,19 @@ def generate_dataset(start_line, nb_cols, nb_rows, nb_pages, img_height=32, img_
     # Create pages for EMNIST and KMNIST
     print('Generating pages for emnist and kmnist...')
 
+    is_break = False
+    char_list = []
     for nb_page in range(nb_pages):
         emnist_page = np.zeros((nb_rows * img_height, nb_cols * img_width), dtype=np.uint8)
         kmnist_page = np.zeros((nb_rows * img_height, nb_cols * img_width), dtype=np.uint8)
         for row in range(nb_rows):
             for col in range(nb_cols):
                 idx = nb_page * nb_cols * nb_rows + row * nb_cols + col
+                
+                if idx >= len(labels):
+                    is_break = True
+                    break
+
                 label = labels[idx]
 
                 if label == '\n':
@@ -106,12 +122,14 @@ def generate_dataset(start_line, nb_cols, nb_rows, nb_pages, img_height=32, img_
                     kmnist_image = cv2.resize(kmnist_image, (img_width, img_height))
 
                 # Rotate the image with given probability
-                emnist_image = transformations.rotate(emnist_image)
-                kmnist_image = transformations.rotate(kmnist_image)
+                if add_roatation:
+                    emnist_image = transformations.rotate(emnist_image, rotation_prob, rotation_degree)
+                    kmnist_image = transformations.rotate(kmnist_image, rotation_prob, rotation_degree)
 
                 # Shrink/stretch the image with given probability
-                emnist_image = transformations.scale(emnist_image)
-                kmnist_image = transformations.scale(kmnist_image)
+                if add_scaling:
+                    emnist_image = transformations.scale(emnist_image, scaling_prob, scaling_factor)
+                    kmnist_image = transformations.scale(kmnist_image, scaling_prob, scaling_factor)
 
                 # Transform image to binary representation
                 emnist_image = transformations.one_hot(emnist_image)
@@ -127,14 +145,15 @@ def generate_dataset(start_line, nb_cols, nb_rows, nb_pages, img_height=32, img_
                 kmnist_page[y:y+img_height, x:x+img_width] = kmnist_image
 
         # Apply salt and pepper noise on image
-        noise_probability = 0.01  # apply each type of noise to 1% of all pixels
-        emnist_page = transformations.salt_and_pepper_noise(emnist_page, p=noise_probability)
-        kmnist_page = transformations.salt_and_pepper_noise(kmnist_page, p=noise_probability)
+        if add_salt_and_pepper:
+            # apply each type of noise to 1% of all pixels
+            emnist_page = transformations.salt_and_pepper_noise(emnist_page, p=salt_pepper_prob)
+            kmnist_page = transformations.salt_and_pepper_noise(kmnist_page, p=salt_pepper_prob)
 
-        # Apply paper folding noise
-        num_lines = 10
-        emnist_page = transformations.folding_lines(emnist_page, num_lines=num_lines)
-        kmnist_page = transformations.folding_lines(kmnist_page, num_lines=num_lines)
+        # # Apply paper folding noise
+        if add_folding_lines:
+            emnist_page = transformations.folding_lines(emnist_page, num_lines=num_folding_lines)
+            kmnist_page = transformations.folding_lines(kmnist_page, num_lines=num_folding_lines)
 
         # Save EMNIST page as PNG
         print(f'Saving page {nb_page}...')
@@ -147,6 +166,7 @@ def generate_dataset(start_line, nb_cols, nb_rows, nb_pages, img_height=32, img_
 
         # Go thru pages emnist and kmnist and save pairs 
         for row in range(nb_rows):
+            if not save_pairs: break
             for col in range(nb_cols):
                 pair_idx = nb_page * nb_cols * nb_rows + row * nb_cols + col
                 idx = row * nb_cols + col
@@ -166,16 +186,26 @@ def generate_dataset(start_line, nb_cols, nb_rows, nb_pages, img_height=32, img_
                 # Save pair (EMNIST, KMNIST)
                 pair_fname = os.path.join(pairs_dir, f'{pair_idx}.png')
                 cv2.imwrite(pair_fname, pair_img)
+        
+        if is_break:
+            break
+
+    # Stats for documentation    
+    # from collections import Counter
+    import json
+    # c = Counter(char_list)
+    # c = {key: value for key, value in sorted(c.items(), key=lambda item: item[1], reverse=True)}
+    json.dump(labels, open(os.path.join(BASE_PATH, 'characters.json'), 'w'))
 
     print('Done!')
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--start_line', type=int, default=202)
+    parser.add_argument('--start_line', type=int, default=0) # 202
+    parser.add_argument('--nb_pages', type=int, default=100)
     parser.add_argument('--nb_cols', type=int, default=80)
     parser.add_argument('--nb_rows', type=int, default=114)
-    parser.add_argument('--nb_pages', type=int, default=5)
     parser.add_argument('--img_height', type=int, default=32)
     parser.add_argument('--img_width', type=int, default=32)
     parser.add_argument('--seed', type=int, default=0)
@@ -183,8 +213,9 @@ def main():
     args = parser.parse_args()
 
     os.makedirs(BASE_PATH, exist_ok=True)
-    generate_dataset(args.start_line, args.nb_cols, args.nb_rows,
-                     args.nb_pages, args.img_height, args.img_width, 
+    generate_dataset(args.start_line, args.nb_pages,
+                     args.nb_cols, args.nb_rows, 
+                     args.img_height, args.img_width, 
                      args.seed, mapping_fname=args.mapping)
 
 

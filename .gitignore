@@ -7,7 +7,10 @@ data/**/*.mat
 dataset
 mapping
 spreadsheets
-models/*.pth
+models/**/*.pth
+models/**/*.joblib
+models/**/results
+viz
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
