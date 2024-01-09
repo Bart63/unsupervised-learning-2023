@@ -158,9 +158,14 @@ class PageProcessor:
         unique_labels = np.unique(labels)
         self.labels = np.array(self.labels)
         right_guesses = 0
+        counts_char_list = []
         for l in unique_labels:
             indices = np.where(labels == l)[0]
             most_common = Counter(self.labels[indices]).most_common(1)
+            
             common_count = most_common[0][1]
             right_guesses += common_count
-        return right_guesses / len(labels)
+
+            character_str = most_common[0][0]
+            counts_char_list.append((len(indices), character_str))
+        return right_guesses / len(labels), counts_char_list

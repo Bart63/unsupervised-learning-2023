@@ -56,8 +56,8 @@ def generate_dataset_btn(start_line, nb_pages, seed,
 
 st.write("# Start by generating dataset")
 
-start_line = st.number_input("Starting line (last line is 407)", 0, 407)
-nb_pages = st.number_input("Number of pages", 1, 35)
+start_line = st.number_input("Starting line (last line is 4007)", 0, 4007)
+nb_pages = st.number_input("Number of pages (max pages 35)", 1, 35)
 seed = st.number_input("Seed", step=1)
 
 st.markdown('---')

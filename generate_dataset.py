@@ -99,12 +99,14 @@ def generate_dataset(start_line, nb_pages, nb_cols=80, nb_rows=114, img_height=3
                     label = labels[idx]
                 
                 if label == ' ':
+                    char_list.append(' ')
                     # Load EMNIST image
                     emnist_image = np.zeros((img_height, img_width))
 
                     # Load KMNIST image
                     kmnist_image = np.zeros((img_height, img_width))
                 else:
+                    char_list.append(label2char[label])
                     emnist_path = get_img_path(label, emnist_dir)
                     kmnist_path = get_img_path(label, kmnist_dir)
 
@@ -195,7 +197,7 @@ def generate_dataset(start_line, nb_pages, nb_cols=80, nb_rows=114, img_height=3
     import json
     # c = Counter(char_list)
     # c = {key: value for key, value in sorted(c.items(), key=lambda item: item[1], reverse=True)}
-    json.dump(labels, open(os.path.join(BASE_PATH, 'characters.json'), 'w'))
+    json.dump(char_list, open(os.path.join(BASE_PATH, 'characters.json'), 'w'))
 
     print('Done!')
 
