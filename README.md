@@ -1,7 +1,10 @@
 # unsupervised-learning-2023
 Project Unsupervised Learning 2023 concentrates on solving a translation of manuscripts between image alphabets (EMNIST and KMNIST) utilizing unsupervised learning methods such as autoencoders (CAE and VAE), dimensionality reduction (PCA, UMAP) and clustering (K-Means, GMM). To simulate a real world problem, noise was added on generated manuscripts (salt and pepper, lines, rotation and scaling of letters).
 
-## Results
+## App
+GUI was created in streamlit:
+![Screenshot from 2024-04-19 23-29-43](https://github.com/Bart63/unsupervised-learning-2023/assets/30702198/c8b7475f-b691-4003-8d78-9b8c34b7692a)
+
 Input:
 ![kmnist_page_0](https://github.com/Bart63/unsupervised-learning-2023/assets/30702198/63c8c272-6d5d-43e2-be82-b61b592ff7dc)
 
